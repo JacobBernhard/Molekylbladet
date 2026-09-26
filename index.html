@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molekyllabbet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F2F6FB; --card:#FFFFFF; --ink:#17233D; --muted:#56637C; --line:#D5DEEA;
+  --water:#2479C9; --water-soft:#DCEBFA; --ice:#8ED4F2;
+  --hot:#DC5530; --hot-soft:#FDE6DD; --cold:#2385CE; --cold-soft:#DDEFFB;
+  --sun:#F2AE12; --good:#1C8F59; --good-soft:#DDF4E8; --bad:#C93D35; --bad-soft:#FBE2E0;
+  --tank:#E8F2FC; --tank-edge:#C7DAEE; --bond:rgba(36,121,201,.35);
+  --h-atom:#FFFFFF; --h-stroke:#8C9AB0; --o-atom:#E5484D;
+  --shadow:0 1px 2px rgba(23,35,61,.06),0 8px 24px rgba(23,35,61,.07);
+  --display:"Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#0E1626; --card:#162139; --ink:#E9F0FA; --muted:#9AABC6; --line:#2A3957;
+    --water:#56A6EE; --water-soft:#1B2E4C; --ice:#9ADDF7;
+    --hot:#FF8662; --hot-soft:#3A2320; --cold:#5BB0F0; --cold-soft:#16304A;
+    --sun:#FFC94D; --good:#3CC985; --good-soft:#15352A; --bad:#FF6B62; --bad-soft:#3A1E20;
+    --tank:#0A1220; --tank-edge:#22324F; --bond:rgba(120,190,255,.35);
+    --h-atom:#F1F5FB; --h-stroke:#6B7A93; --o-atom:#F0595E;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0E1626; --card:#162139; --ink:#E9F0FA; --muted:#9AABC6; --line:#2A3957;
+  --water:#56A6EE; --water-soft:#1B2E4C; --ice:#9ADDF7;
+  --hot:#FF8662; --hot-soft:#3A2320; --cold:#5BB0F0; --cold-soft:#16304A;
+  --sun:#FFC94D; --good:#3CC985; --good-soft:#15352A; --bad:#FF6B62; --bad-soft:#3A1E20;
+  --tank:#0A1220; --tank-edge:#22324F; --bond:rgba(120,190,255,.35);
+  --h-atom:#F1F5FB; --h-stroke:#6B7A93; --o-atom:#F0595E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:18px 56px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:48px;height:48px;flex:none}
+.brand h1{font-size:2rem;font-weight:700;letter-spacing:-.01em}
+.brand p{color:var(--muted);font-size:.95rem}
+.tabs{display:flex;gap:6px;background:var(--card);padding:6px;border-radius:999px;box-shadow:var(--shadow);overflow-x:auto;max-width:100%}
+.tab{border:0;background:transparent;padding:9px 16px;border-radius:999px;font-family:var(--display);font-weight:600;font-size:1rem;white-space:nowrap;color:var(--muted)}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--water);color:#fff}
+
+.intro{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 20px;margin-bottom:16px}
+.intro h2{font-size:1.6rem}
+.intro p{color:var(--muted);max-width:60ch}
+
+.panel{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px}
+.label{font-family:var(--display);font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* ===== LAB ===== */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+.tankwrap{position:relative;border-radius:18px;overflow:hidden;border:2px solid var(--tank-edge);background:var(--tank)}
+#tank{display:block;width:100%}
+.chip{position:absolute;font-family:var(--display);font-weight:600;font-size:.8rem;background:var(--card);color:var(--muted);padding:4px 10px;border-radius:999px;box-shadow:var(--shadow)}
+.zoomchip{top:10px;left:10px}
+.scalebar{top:10px;right:10px;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.scalebar i{display:block;height:4px;border-radius:2px;background:var(--muted);border-left:2px solid var(--muted);border-right:2px solid var(--muted)}
+.banner{position:absolute;left:50%;top:50px;transform:translate(-50%,-10px) scale(.96);opacity:0;pointer-events:none;
+  background:var(--card);border-radius:16px;padding:10px 18px;text-align:center;box-shadow:var(--shadow);transition:opacity .3s,transform .3s;max-width:calc(100% - 32px)}
+.banner.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.banner b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:700}
+.banner.warm b{color:var(--hot)} .banner.cold b{color:var(--cold)}
+.banner span{color:var(--muted);font-size:.95rem}
+
+.side{display:flex;flex-direction:column;gap:14px}
+.thermo{display:grid;grid-template-columns:104px 1fr;gap:16px;align-items:center}
+.tube{position:relative;width:26px;height:150px;border-radius:13px;background:var(--paper);border:2px solid var(--line)}
+.tube .fill{position:absolute;left:4px;right:4px;bottom:4px;border-radius:9px;background:var(--water);transition:background .3s}
+.tube .mark{position:absolute;left:30px;font-size:.72rem;color:var(--muted);white-space:nowrap;transform:translateY(50%)}
+.tube .mark::before{content:"";position:absolute;left:-10px;top:50%;width:8px;border-top:2px solid var(--line)}
+.readout{font-family:var(--display);font-weight:700;font-size:2.2rem;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.readout small{display:block;font-size:.95rem;font-weight:500;color:var(--muted);margin-top:4px}
+.slider label{display:block;margin-bottom:6px}
+#temp{width:100%;accent-color:var(--water);height:28px}
+.scale{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:8px 12px;font-family:var(--display);font-weight:600;font-size:.95rem}
+.btn:hover{border-color:var(--water)}
+.btn.cold{background:var(--cold-soft);border-color:transparent;color:var(--cold)}
+.btn.hot{background:var(--hot-soft);border-color:transparent;color:var(--hot)}
+.btn.primary{background:var(--water);border-color:var(--water);color:#fff}
+.btnrow .btn{flex:1 1 auto}
+
+.state h3{font-size:1.6rem;margin:2px 0 6px}
+.state p{color:var(--ink)}
+.facts{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin-top:12px;font-size:.92rem}
+.facts dt{color:var(--muted)} .facts dd{margin:0;font-weight:700;text-align:right}
+.note{margin-top:10px;padding:8px 12px;border-radius:12px;background:var(--hot-soft);color:var(--ink);font-size:.92rem}
+
+.below{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;margin-top:18px;align-items:stretch}
+.macro{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.macro svg{width:150px;height:auto;max-width:100%}
+.macro p{color:var(--muted);font-size:.88rem}
+@keyframes rise{0%{transform:translateY(8px);opacity:0}40%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
+.wisp{animation:rise 2.4s ease-in-out infinite}
+.wisp:nth-child(2){animation-delay:.8s}.wisp:nth-child(3){animation-delay:1.6s}
+
+.cycle{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;margin-top:12px}
+.node{border-radius:18px;padding:14px 8px;text-align:center;border:2px solid var(--line);background:var(--paper);transition:border-color .3s,background .3s}
+.node b{display:block;font-family:var(--display);font-size:1.25rem;font-weight:600}
+.node small{color:var(--muted)}
+.node.on{border-color:var(--water);background:var(--water-soft)}
+.links{display:flex;flex-direction:column;gap:8px}
+.proc{border:0;border-radius:12px;padding:8px 12px;font-family:var(--display);font-weight:600;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .2s,box-shadow .2s}
+.proc.warm{background:var(--hot-soft);color:var(--hot)}
+.proc.cold{background:var(--cold-soft);color:var(--cold)}
+.proc:hover{transform:translateY(-1px)}
+.proc.flash{box-shadow:0 0 0 3px currentColor}
+.ar{display:inline-block}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:.88rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+.legend .w::before{background:var(--hot)} .legend .c::before{background:var(--cold)}
+
+/* ===== MOLECULES ===== */
+.mol{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.atombtn{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:8px 10px;text-align:left}
+.atombtn:hover{border-color:var(--water)}
+.atombtn svg{width:36px;height:36px;flex:none}
+.atombtn b{display:block;font-family:var(--display);font-weight:600}
+.atombtn small{color:var(--muted);font-size:.8rem}
+.bench{margin-top:14px;min-height:92px;border:2px dashed var(--line);border-radius:16px;padding:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;background:var(--paper)}
+.bench .empty{color:var(--muted);font-size:.95rem}
+.bench button{border:0;background:transparent;padding:0;border-radius:50%}
+.bench svg{width:46px;height:46px;display:block}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.bench button{animation:pop .25s ease-out}
+.benchbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+.count{color:var(--muted);font-size:.92rem}
+.result{display:flex;flex-direction:column;gap:10px;min-height:320px}
+.result .art{background:var(--paper);border-radius:16px;display:flex;align-items:center;justify-content:center;padding:8px}
+.result .art svg{width:100%;max-width:320px;height:auto}
+.result.win .art{animation:pop .4s ease-out}
+.result h3{font-size:1.7rem}
+.formula{font-family:var(--display);font-weight:500;color:var(--muted);font-size:1.2rem;margin-left:8px}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.badge{font-size:.82rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--water-soft);color:var(--water)}
+.badge.comp{background:var(--good-soft);color:var(--good)}
+.badge.elem{background:var(--hot-soft);color:var(--hot)}
+.msg{color:var(--muted)}
+.found{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.fcard{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fcard svg{width:100%;height:52px}
+.fcard b{font-family:var(--display);font-weight:600;font-size:.95rem}
+.fcard small{color:var(--muted);font-size:.78rem}
+.fcard.locked{border-style:dashed;background:var(--paper)}
+.fcard.locked .q{font-family:var(--display);font-size:2rem;font-weight:700;color:var(--line);line-height:52px}
+.defs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.def h3{font-size:1.2rem;margin-bottom:4px}
+.def p{color:var(--muted);font-size:.95rem}
+.def svg{width:100%;height:56px;margin-bottom:6px}
+
+/* ===== GLOSSARY ===== */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.filt{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-family:var(--display);font-weight:600;font-size:.95rem;color:var(--muted)}
+.filt[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.term{display:flex;flex-direction:column;gap:6px}
+.term .vis{height:60px;display:flex;align-items:center}
+.term .vis svg{height:56px;width:auto;max-width:100%}
+.term h3{font-size:1.4rem}
+.term .ex{font-size:.92rem;color:var(--muted)}
+.term .ex b{color:var(--ink)}
+.term .go{margin-top:auto;align-self:flex-start}
+.tag{align-self:flex-start;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:6px}
+.tag.b{background:var(--good-soft);color:var(--good)}
+.tag.f{background:var(--water-soft);color:var(--water)}
+.tag.c{background:var(--hot-soft);color:var(--hot)}
+.pchange{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:600}
+.pchange span{padding:4px 10px;border-radius:10px;background:var(--paper);border:2px solid var(--line)}
+
+/* ===== QUIZ ===== */
+.quiz{max-width:680px;margin:0 auto}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.progress{flex:1;height:10px;border-radius:5px;background:var(--paper);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--water);border-radius:5px;transition:width .3s}
+.score{font-family:var(--display);font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.quiz h3{font-size:1.5rem;margin-bottom:14px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:12px 16px;text-align:left;font-size:1.05rem}
+.opt:hover:not(:disabled){border-color:var(--water)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--paper)}
+.feedback b{font-family:var(--display);font-size:1.15rem}
+.feedback.ok b{color:var(--good)} .feedback.no b{color:var(--bad)}
+.qnext{margin-top:14px;display:flex;justify-content:flex-end}
+.stars{font-size:2.6rem;letter-spacing:.1em;color:var(--line);margin:8px 0}
+.stars .on{color:var(--sun)}
+.done{text-align:center;padding-block:18px}
+.done h3{font-size:2rem}
+
+@media (max-width:900px){
+  .lab{grid-template-columns:1fr}
+  .side{display:grid;grid-template-columns:1fr 1fr}
+  .mol{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .side{grid-template-columns:1fr}
+  .below{grid-template-columns:1fr}
+  .cycle{grid-template-columns:1fr}
+  .links{flex-direction:row}
+  .links .proc{flex:1}
+  .ar{transform:rotate(90deg)}
+  .palette{grid-template-columns:repeat(2,1fr)}
+  .found{grid-template-columns:repeat(2,1fr)}
+  .defs{grid-template-columns:1fr}
+  .brand h1{font-size:1.6rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .wisp,.bench button,.result.win .art{animation:none}
+  .banner,.proc,.progress i{transition:none}
+}
+</style>
+
+</head>
+<body style="margin:0">
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="13" cy="31" r="8" fill="var(--h-atom)" stroke="var(--h-stroke)" stroke-width="2"/>
+        <circle cx="35" cy="31" r="8" fill="var(--h-atom)" stroke="var(--h-stroke)" stroke-width="2"/>
+        <circle cx="24" cy="20" r="13" fill="var(--o-atom)"/>
+        <circle cx="19.5" cy="15.5" r="4" fill="#fff" opacity=".4"/>
+      </svg>
+      <div>
+        <h1>Molekyllabbet</h1>
+        <p>Utforska atomer, molekyler och hur ämnen byter form</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Delar">
+      <button class="tab" role="tab" data-tab="labb" aria-selected="true">Värmelabbet</button>
+      <button class="tab" role="tab" data-tab="molekyler" aria-selected="false">Bygg molekyler</button>
+      <button class="tab" role="tab" data-tab="ordlista" aria-selected="false">Ordlistan</button>
+      <button class="tab" role="tab" data-tab="quiz" aria-selected="false">Quiz</button>
+    </nav>
+  </header>
+
+  <!-- ================= LAB ================= -->
+  <section id="labb" data-panel>
+    <div class="intro">
+      <h2>Värm och kyl vatten</h2>
+      <p>Dra i reglaget och titta på vattenmolekylerna. Varje röd kula är en syreatom med två små väteatomer.</p>
+    </div>
+    <div class="lab">
+      <div class="tankwrap" id="tankwrap">
+        <canvas id="tank" aria-label="Vattenmolekyler i en behållare"></canvas>
+        <div class="chip zoomchip">Inzoomat ungefär 20 miljoner gånger</div>
+        <div class="chip scalebar"><i id="nm"></i>1 nanometer</div>
+        <div class="banner" id="banner" role="status" aria-live="polite"><b></b><span></span></div>
+      </div>
+
+      <div class="side">
+        <div class="panel">
+          <div class="label">Termometer</div>
+          <div class="thermo" style="margin-top:10px">
+            <div class="tube" id="tube">
+              <div class="fill" id="tfill"></div>
+              <div class="mark" id="m100">100° kokar</div>
+              <div class="mark" id="m0">0° fryser</div>
+            </div>
+            <div class="readout" id="readout">20 °C<small>rumstemperatur</small></div>
+          </div>
+          <div class="slider" style="margin-top:16px">
+            <label for="temp" class="label">Ställ in värmen</label>
+            <input type="range" id="temp" min="-30" max="130" step="1" value="20">
+            <div class="scale"><span>−30</span><span>0</span><span>50</span><span>100</span><span>130</span></div>
+          </div>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn cold" id="cool">Kyl ned 10°</button>
+            <button class="btn hot" id="heat">Värm upp 10°</button>
+          </div>
+          <div class="btnrow" style="margin-top:8px">
+            <button class="btn" data-preset="-15">Is</button>
+            <button class="btn" data-preset="20">Vatten</button>
+            <button class="btn" data-preset="120">Ånga</button>
+          </div>
+        </div>
+        <div class="panel state" id="state"></div>
+      </div>
+    </div>
+
+    <div class="below">
+      <div class="panel macro">
+        <div class="label">Så ser det ut för ögat</div>
+        <svg viewBox="0 0 160 200" aria-hidden="true">
+          <defs><clipPath id="glass"><path d="M32 44 L38 180 Q38 184 42 184 L118 184 Q122 184 122 180 L128 44 Z"/></clipPath></defs>
+          <g id="steam" opacity="0">
+            <path class="wisp" d="M58 38 q-8 -8 0 -16 q8 -8 0 -16" fill="none" stroke="var(--muted)" stroke-width="4" stroke-linecap="round"/>
+            <path class="wisp" d="M80 38 q-8 -8 0 -16 q8 -8 0 -16" fill="none" stroke="var(--muted)" stroke-width="4" stroke-linecap="round"/>
+            <path class="wisp" d="M102 38 q-8 -8 0 -16 q8 -8 0 -16" fill="none" stroke="var(--muted)" stroke-width="4" stroke-linecap="round"/>
+          </g>
+          <g clip-path="url(#glass)">
+            <rect id="haze" x="20" y="40" width="120" height="150" fill="var(--muted)" opacity="0"/>
+            <rect id="wat" x="20" y="184" width="120" height="0" fill="var(--water)" opacity=".55"/>
+            <g id="ice"><rect id="icecube" x="55" y="130" width="50" height="50" rx="7" fill="var(--ice)" stroke="#fff" stroke-width="2" opacity=".95"/></g>
+          </g>
+          <path d="M30 40 L37 181 Q37 186 42 186 L118 186 Q123 186 123 181 L130 40" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round" opacity=".55"/>
+        </svg>
+        <p id="macrotext">Ett glas vatten</p>
+      </div>
+
+      <div class="panel">
+        <div class="label">Formerna och förändringarna</div>
+        <p style="color:var(--muted);margin-top:4px">Tryck på en förändring så visar labbet den.</p>
+        <div class="cycle">
+          <div class="node" data-node="s"><b>Fast</b><small>is</small></div>
+          <div class="links">
+            <button class="proc warm" data-proc="melt">Smältning <span class="ar">→</span></button>
+            <button class="proc cold" data-proc="freeze"><span class="ar">←</span> Stelning</button>
+          </div>
+          <div class="node" data-node="l"><b>Flytande</b><small>vatten</small></div>
+          <div class="links">
+            <button class="proc warm" data-proc="boil">Avdunstning <span class="ar">→</span></button>
+            <button class="proc cold" data-proc="cond"><span class="ar">←</span> Kondensering</button>
+          </div>
+          <div class="node" data-node="g"><b>Gas</b><small>vattenånga</small></div>
+        </div>
+        <div class="legend"><span class="w">Värme tillförs: molekylerna rör sig mer</span><span class="c">Värme försvinner: molekylerna rör sig mindre</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MOLECULES ================= -->
+  <section id="molekyler" data-panel hidden>
+    <div class="intro">
+      <h2>Bygg molekyler</h2>
+      <p>Tryck på atomerna för att lägga dem på bordet. Hittar du rätt kombination blir det en molekyl.</p>
+    </div>
+    <div class="mol">
+      <div class="panel">
+        <div class="label">Atomer</div>
+        <div class="palette" id="palette"></div>
+        <div class="bench" id="bench"></div>
+        <div class="benchbar">
+          <span class="count" id="count">Tryck på en atom i bordet för att ta bort den.</span>
+          <button class="btn" id="clear">Töm bordet</button>
+        </div>
+      </div>
+      <div class="panel result" id="result"></div>
+    </div>
+    <div class="panel" style="margin-top:18px">
+      <div class="label">Din samling: <span id="foundcount">0</span> av 8</div>
+      <div class="found" id="found"></div>
+    </div>
+    <div class="defs" id="defs"></div>
+  </section>
+
+  <!-- ================= GLOSSARY ================= -->
+  <section id="ordlista" data-panel hidden>
+    <div class="intro">
+      <h2>Ordlistan</h2>
+      <p>Alla viktiga ord, förklarade. Tryck på knappen i ett kort för att se det hända.</p>
+    </div>
+    <div class="filters" id="filters">
+      <button class="filt" data-f="all" aria-pressed="true">Alla</button>
+      <button class="filt" data-f="b" aria-pressed="false">Byggstenar</button>
+      <button class="filt" data-f="f" aria-pressed="false">Former</button>
+      <button class="filt" data-f="c" aria-pressed="false">Förändringar</button>
+    </div>
+    <div class="gloss" id="gloss"></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="quiz" data-panel hidden>
+    <div class="intro">
+      <h2>Testa dig själv</h2>
+      <p>Tio frågor om allt du har utforskat. Hur många stjärnor får du?</p>
+    </div>
+    <div class="panel quiz" id="quizbox"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const fmt=t=>(t<0?'−':'')+Math.abs(Math.round(t))+' °C';
+
+/* ---------- tabs ---------- */
+function showTab(id){
+  $$('[data-panel]').forEach(s=>s.hidden=s.id!==id);
+  $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id));
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  if(id==='labb') requestAnimationFrame(resize);
+}
+$$('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+
+/* =========================================================
+   LAB SIMULATION
+   ========================================================= */
+const cv=$('#tank'), ctx=cv.getContext('2d');
+const N=36, COLS=9, ROWS=4;
+let W=600,H=380,R=11,DPR=1;
+let T=20, goal=20, frame=0, lastPhase='l', slots=[], owner=new Array(N).fill(-1);
+const P=[];
+for(let i=0;i<N;i++) P.push({x:0,y:0,vx:0,vy:0,ang:0,va:0,ph:'l',slot:-1,hx:0,hy:0,free:0});
+let col={};
+function readColors(){
+  const cs=getComputedStyle(document.documentElement);
+  ['tank','bond','h-atom','h-stroke','o-atom'].forEach(k=>col[k]=cs.getPropertyValue('--'+k).trim());
+}
+function buildSlots(){
+  const S=R*2.3;
+  const totalW=COLS*S+S/2;
+  const x0=(W-totalW)/2+S/2;
+  slots=[];
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    slots.push({x:x0+c*S+(r%2?S/2:0), y:H-R-6-r*S*0.88, row:r});
+  }
+}
+function resize(){
+  const w=cv.parentElement.clientWidth; if(!w) return;
+  DPR=window.devicePixelRatio||1;
+  W=w; H=Math.round(Math.max(290,Math.min(430,W*0.66)));
+  R=Math.max(7.5,Math.min(13,W/58));
+  cv.style.height=H+'px'; cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  buildSlots();
+  P.forEach(p=>{ if(p.slot>=0){p.hx=slots[p.slot].x;p.hy=slots[p.slot].y;} p.x=Math.min(Math.max(p.x,R),W-R); p.y=Math.min(Math.max(p.y,R),H-R); });
+  $('#nm').style.width=(R*6.8)+'px';
+  readColors();
+}
+function phaseOf(t){return t<0?'s':(t<100?'l':'g')}
+function freeSlot(p){
+  if(p.slot>=0){owner[p.slot]=-1;p.slot=-1;}
+}
+function takeSlot(i){
+  const p=P[i]; let best=-1,bc=1e9;
+  slots.forEach((s,k)=>{ if(owner[k]!==-1) return; const c=s.row*1000+Math.abs(s.x-p.x); if(c<bc){bc=c;best=k;} });
+  if(best<0) return;
+  owner[best]=i; p.slot=best; p.hx=slots[best].x; p.hy=slots[best].y;
+}
+function setPhase(i,ph){
+  const p=P[i]; if(p.ph===ph) return;
+  if(p.ph==='s') freeSlot(p);
+  p.ph=ph;
+  if(ph==='s') takeSlot(i);
+  if(ph==='g'){ p.vy=-2.5-Math.random()*2; p.vx=(Math.random()-.5)*4; p.va=(Math.random()-.5)*0.2; }
+}
+function forcePhase(ph){
+  if(!slots.length) buildSlots();
+  owner.fill(-1);
+  P.forEach((p,i)=>{
+    p.slot=-1; p.free=0; p.ph=ph; p.vx=0; p.vy=0;
+    const s=slots[i];
+    if(ph==='s'){ owner[i]=i; p.slot=i; p.hx=s.x; p.hy=s.y; p.x=s.x; p.y=s.y; p.ang=0; }
+    else if(ph==='l'){ p.x=s.x+(Math.random()-.5)*R; p.y=s.y-(Math.random())*R; p.ang=Math.random()*6.28; }
+    else { p.x=R+Math.random()*(W-2*R); p.y=R+Math.random()*(H-2*R); const a=Math.random()*6.28; p.vx=Math.cos(a)*3; p.vy=Math.sin(a)*3; p.va=(Math.random()-.5)*0.2; }
+  });
+  lastPhase=phaseOf(T);
+}
+function convertOne(tp){
+  const cand=[]; P.forEach((p,i)=>{ if(p.ph!==tp && !(tp==='l'&&p.free>0)) cand.push(i); });
+  if(!cand.length) return;
+  let pick;
+  const from=P[cand[0]].ph;
+  if(tp==='s'){ pick=cand.reduce((a,b)=>P[b].y>P[a].y?b:a); }            // lowest freezes first
+  else if(tp==='l' && cand.some(i=>P[i].ph==='s')){ const c=cand.filter(i=>P[i].ph==='s'); pick=c.reduce((a,b)=>P[b].y<P[a].y?b:a); } // melt from the top
+  else if(tp==='g'){ pick=cand.reduce((a,b)=>P[b].y<P[a].y?b:a); }       // top leaves first
+  else pick=cand[Math.floor(Math.random()*cand.length)];
+  setPhase(pick,tp);
+}
+function spontaneousEvap(){
+  if(T<25) return;
+  if(Math.random()>(T-25)/75*0.03) return;
+  let top=-1; P.forEach((p,i)=>{ if(p.ph==='l' && (top<0||p.y<P[top].y)) top=i; });
+  if(top<0) return;
+  setPhase(top,'g'); P[top].free=140+Math.random()*160;
+}
+function physics(dt){
+  const minD=R*2.1, attrD=minD*1.5, jit=0.5+Math.max(0,T+40)/40*0.9;
+  for(let i=0;i<N;i++){const a=P[i];
+    for(let j=i+1;j<N;j++){const b=P[j];
+      const dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy;
+      if(d2>attrD*attrD) continue;
+      const d=Math.sqrt(d2)||0.01, nx=dx/d, ny=dy/d;
+      const wa=a.ph==='s'?0:1, wb=b.ph==='s'?0:1, ws=wa+wb;
+      if(!ws) continue;
+      if(d<minD){
+        const ov=minD-d;
+        a.x-=nx*ov*wa/ws; a.y-=ny*ov*wa/ws; b.x+=nx*ov*wb/ws; b.y+=ny*ov*wb/ws;
+        const rv=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
+        if(rv<0){ const e=(a.ph==='g'||b.ph==='g')?0.95:0.3, J=-(1+e)*rv/ws;
+          a.vx-=J*nx*wa; a.vy-=J*ny*wa; b.vx+=J*nx*wb; b.vy+=J*ny*wb; }
+      } else if(a.ph==='l'&&b.ph==='l'){
+        const f=0.035*dt; a.vx+=nx*f; a.vy+=ny*f; b.vx-=nx*f; b.vy-=ny*f;
+      }
+    }
+  }
+  for(const p of P){
+    if(p.ph==='s'){
+      p.vx+=(p.hx-p.x)*0.12*dt; p.vy+=(p.hy-p.y)*0.12*dt;
+      p.vx*=0.86; p.vy*=0.86;
+      p.vx+=(Math.random()-.5)*jit*dt; p.vy+=(Math.random()-.5)*jit*dt;
+      const target=(p.slot%2?0.35:-0.35);
+      p.ang+=(target-p.ang)*0.08+(Math.random()-.5)*0.03*jit;
+    } else if(p.ph==='l'){
+      const kick=(0.35+Math.max(0,T)/100*0.7)*dt;
+      p.vy+=0.14*dt; p.vx+=(Math.random()-.5)*kick; p.vy+=(Math.random()-.5)*kick;
+      p.vx*=0.975; p.vy*=0.975;
+      const sp=Math.hypot(p.vx,p.vy); if(sp>4){p.vx*=4/sp;p.vy*=4/sp;}
+      p.va+=(Math.random()-.5)*0.01; p.va*=0.97; p.ang+=p.va;
+    } else {
+      p.vy+=0.012*dt;
+      const sg=(p.free>0?2.4:2.6+Math.max(0,T-100)/30*1.6), sp=Math.hypot(p.vx,p.vy);
+      if(sp>0.01){ const f=1+(sg/sp-1)*0.03; p.vx*=f; p.vy*=f; }
+      p.ang+=p.va;
+    }
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+    const e=p.ph==='g'?0.95:0.3;
+    if(p.x<R){p.x=R;p.vx=Math.abs(p.vx)*e;} if(p.x>W-R){p.x=W-R;p.vx=-Math.abs(p.vx)*e;}
+    if(p.y<R){p.y=R;p.vy=Math.abs(p.vy)*e;} if(p.y>H-R){p.y=H-R;p.vy=-Math.abs(p.vy)*e;}
+  }
+}
+function drawMol(p){
+  const hr=R*0.62, hd=R*0.98;
+  for(const sg of [-1,1]){
+    const a=p.ang+Math.PI/2+sg*0.91;
+    ctx.beginPath(); ctx.arc(p.x+Math.cos(a)*hd,p.y+Math.sin(a)*hd,hr,0,6.2832);
+    ctx.fillStyle=col['h-atom']; ctx.fill(); ctx.lineWidth=1.3; ctx.strokeStyle=col['h-stroke']; ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(p.x,p.y,R,0,6.2832); ctx.fillStyle=col['o-atom']; ctx.fill();
+  ctx.beginPath(); ctx.arc(p.x-R*.35,p.y-R*.35,R*.3,0,6.2832); ctx.fillStyle='rgba(255,255,255,.38)'; ctx.fill();
+}
+function draw(){
+  ctx.fillStyle=col.tank; ctx.fillRect(0,0,W,H);
+  const lim=(R*2.1*1.3)**2;
+  ctx.strokeStyle=col.bond; ctx.lineWidth=2; ctx.setLineDash([3,4]);
+  ctx.beginPath();
+  for(let i=0;i<N;i++){ if(P[i].ph!=='s') continue;
+    for(let j=i+1;j<N;j++){ if(P[j].ph!=='s') continue;
+      const dx=P[j].x-P[i].x, dy=P[j].y-P[i].y;
+      if(dx*dx+dy*dy<lim){ ctx.moveTo(P[i].x,P[i].y); ctx.lineTo(P[j].x,P[j].y); } } }
+  ctx.stroke(); ctx.setLineDash([]);
+  for(const p of P) drawMol(p);
+}
+
+/* ---- UI linked to the sim ---- */
+const STATES={
+  s:{name:'Fast form',ex:'Is',text:'Molekylerna sitter tätt i ett ordnat mönster. De kan bara vibrera på sin plats. Därför har is en egen form.',
+     facts:[['Egen form','Ja'],['Egen volym','Ja'],['Molekylerna','vibrerar på plats']]},
+  l:{name:'Flytande form',ex:'Vatten',text:'Molekylerna är nära varandra men kan glida förbi varandra. Därför rinner vatten och tar formen av glaset.',
+     facts:[['Egen form','Nej'],['Egen volym','Ja'],['Molekylerna','glider runt']]},
+  g:{name:'Gasform',ex:'Vattenånga',text:'Molekylerna är långt ifrån varandra och flyger snabbt åt alla håll. En gas sprider sig och fyller hela behållaren.',
+     facts:[['Egen form','Nej'],['Egen volym','Nej'],['Molekylerna','flyger fritt']]}
+};
+let stateKey='';
+function renderState(tp){
+  const evap=tp==='l'&&T>=40;
+  const key=tp+(evap?'e':'');
+  if(key===stateKey) return; stateKey=key;
+  const s=STATES[tp];
+  $('#state').innerHTML=`<div class="label">Just nu: ${s.ex.toLowerCase()}</div><h3>${s.name}</h3><p>${s.text}</p>
+    <dl class="facts">${s.facts.map(f=>`<dt>${f[0]}</dt><dd>${f[1]}</dd>`).join('')}</dl>
+    ${evap?'<div class="note">Titta! Några molekyler rymmer från ytan fast vattnet inte kokar. Det är <b>avdunstning</b>.</div>':''}`;
+  $$('.node').forEach(n=>n.classList.toggle('on',n.dataset.node===tp));
+}
+const EVENTS={
+  'sl':['Smältning','Isen smälter och blir flytande vatten.','warm','melt'],
+  'ls':['Stelning','Vattnet stelnar och blir is. Man säger också att det fryser.','cold','freeze'],
+  'lg':['Kokning','Vattnet kokar och blir vattenånga, en gas.','warm','boil'],
+  'gl':['Kondensering','Ångan kyls ned och blir vattendroppar igen.','cold','cond'],
+  'sg':['Smältning och kokning','Isen smälter, och sedan kokar vattnet till ånga.','warm','boil'],
+  'gs':['Kondensering och stelning','Ångan blir vatten, och sedan fryser vattnet till is.','cold','freeze']
+};
+let bannerTimer;
+function announce(a,b){
+  const e=EVENTS[a+b]; if(!e) return;
+  const el=$('#banner'); el.className='banner show '+e[2];
+  el.querySelector('b').textContent=e[0]+'!'; el.querySelector('span').textContent=e[1];
+  clearTimeout(bannerTimer); bannerTimer=setTimeout(()=>el.classList.remove('show'),3200);
+  $$('.proc').forEach(p=>p.classList.toggle('flash',p.dataset.proc===e[3]));
+  setTimeout(()=>$$('.proc').forEach(p=>p.classList.remove('flash')),3200);
+}
+const TMIN=-30,TMAX=130;
+function tPct(t){return (t-TMIN)/(TMAX-TMIN)}
+function placeMarks(){
+  const h=150-8;
+  $('#m0').style.bottom=(4+tPct(0)*h)+'px';
+  $('#m100').style.bottom=(4+tPct(100)*h)+'px';
+}
+let shownT=null;
+function updateTemp(){
+  const r=Math.round(T); if(r===shownT) return; shownT=r;
+  const hue=205-Math.min(1,Math.max(0,tPct(T)))*195;
+  const f=$('#tfill'); f.style.height=Math.max(6,tPct(T)*142)+'px'; f.style.background=`hsl(${hue} 75% 52%)`;
+  let word= r<0?'minusgrader':r===0?'fryspunkten':r<15?'kallt':r<=25?'rumstemperatur':r<60?'varmt':r<100?'hett':r===100?'kokpunkten':'ånghett';
+  $('#readout').innerHTML=fmt(T)+`<small>${word}</small>`;
+}
+function updateMacro(){
+  let s=0,l=0,g=0; P.forEach(p=>{p.ph==='s'?s++:p.ph==='l'?l++:g++;});
+  const fs=s/N, fl=l/N, fg=g/N;
+  const wh=fl*105, wtop=184-wh;
+  $('#wat').setAttribute('y',wtop); $('#wat').setAttribute('height',wh);
+  const size=fs>0?22+fs*40:0;
+  const ic=$('#icecube');
+  ic.setAttribute('width',size); ic.setAttribute('height',size); ic.setAttribute('x',80-size/2);
+  ic.setAttribute('y',wh>size*0.9? wtop-size*0.12 : 182-size);   // ice floats!
+  ic.setAttribute('opacity',fs>0?.95:0);
+  $('#steam').setAttribute('opacity',Math.min(1,fg*2.2));
+  $('#haze').setAttribute('opacity',fg>0.6?fg*0.18:0);
+  const txt= fs>0.9?'En isbit i ett glas' : fs>0.05&&fl>0.05?'Isen smälter / vattnet fryser' : fl>0.6&&fg>0.05?'Varmt vatten som ångar' : fg>0.9?'Glaset är fyllt med vattenånga' : fg>0.3?'Vattnet kokar bort' : 'Ett glas vatten';
+  const mt=$('#macrotext'); if(mt.textContent!==txt) mt.textContent=txt;
+}
+function tick(){
+  if(Math.abs(goal-T)>0.01){ const step=Math.max(0.35,Math.abs(goal-T)*0.04); T+=Math.sign(goal-T)*Math.min(Math.abs(goal-T),step); updateTemp(); }
+  const tp=phaseOf(T);
+  if(tp!==lastPhase){ announce(lastPhase,tp); lastPhase=tp; }
+  if(tp!=='l') P.forEach(p=>p.free=0); else P.forEach(p=>{ if(p.free>0) p.free--; });
+  frame++;
+  if(frame%2===0) convertOne(tp);
+  if(tp==='l') spontaneousEvap();
+  if(frame%30===0) readColors();
+  physics(0.5); physics(0.5);
+  draw(); updateMacro();
+  if(frame%10===0) renderState(tp);
+  requestAnimationFrame(tick);
+}
+function setGoal(v){ goal=Math.max(TMIN,Math.min(TMAX,v)); $('#temp').value=Math.round(goal); }
+$('#temp').addEventListener('input',e=>setGoal(+e.target.value));
+$('#cool').addEventListener('click',()=>setGoal(goal-10));
+$('#heat').addEventListener('click',()=>setGoal(goal+10));
+$$('[data-preset]').forEach(b=>b.addEventListener('click',()=>setGoal(+b.dataset.preset)));
+const PROCS={ melt:['s',-12,20], freeze:['l',15,-15], boil:['l',85,120], cond:['g',115,70], evap:['l',80,80],
+  solid:['s',-15,-15], liquid:['l',20,20], gas:['g',120,120] };
+function runProc(k){
+  const p=PROCS[k]; T=p[1]; forcePhase(p[0]); shownT=null; updateTemp(); setGoal(p[2]); stateKey=''; renderState(phaseOf(T));
+}
+$$('.proc').forEach(b=>b.addEventListener('click',()=>runProc(b.dataset.proc)));
+
+if(window.ResizeObserver) new ResizeObserver(()=>resize()).observe($('#tankwrap')); else window.addEventListener('resize',resize);
+
+/* =========================================================
+   MOLECULE BUILDER
+   ========================================================= */
+const ATOMS={
+  H:{name:'Väte',c:'#F6F8FB',t:'#1B2A4A',r:14},
+  O:{name:'Syre',c:'#E5484D',t:'#fff',r:22},
+  C:{name:'Kol',c:'#3A3F47',t:'#fff',r:20},
+  N:{name:'Kväve',c:'#3D6FE0',t:'#fff',r:20},
+  Na:{name:'Natrium',c:'#9B5DE5',t:'#fff',r:15},
+  Cl:{name:'Klor',c:'#2FAE62',t:'#fff',r:19}
+};
+const saltGrid=[];
+for(let j=0;j<3;j++)for(let i=0;i<4;i++) saltGrid.push([(i+j)%2?'Cl':'Na',49+i*34,36+j*34]);
+const RECIPES=[
+  {id:'h2o',name:'Vatten',f:'H<sub>2</sub>O',c:{H:2,O:1},comp:true,hint:'2 väte + 1 syre',
+   atoms:[['H',74,82],['H',126,82],['O',100,62]],
+   fact:'Vatten finns i sjöar, hav, moln och i din kropp. Mer än hälften av din kropp är vatten.'},
+  {id:'o2',name:'Syrgas',f:'O<sub>2</sub>',c:{O:2},comp:false,hint:'2 syre',
+   atoms:[['O',82,70],['O',118,70]],
+   fact:'Syrgas är gasen vi behöver andas in. Ungefär en femtedel av luften är syrgas.'},
+  {id:'h2',name:'Vätgas',f:'H<sub>2</sub>',c:{H:2},comp:false,hint:'2 väte',
+   atoms:[['H',88,70],['H',112,70]],
+   fact:'Vätgas är den lättaste gasen av alla. Solen består mest av väte.'},
+  {id:'n2',name:'Kvävgas',f:'N<sub>2</sub>',c:{N:2},comp:false,hint:'2 kväve',
+   atoms:[['N',83,70],['N',117,70]],
+   fact:'Kvävgas är den vanligaste gasen i luften. Nästan fyra femtedelar av luften du andas är kvävgas.'},
+  {id:'co2',name:'Koldioxid',f:'CO<sub>2</sub>',c:{C:1,O:2},comp:true,hint:'1 kol + 2 syre',
+   atoms:[['O',60,70],['O',140,70],['C',100,70]],
+   fact:'Du andas ut koldioxid. Växter tar upp den och gör socker och syre av den med hjälp av solljus. Bubblorna i läsk är också koldioxid.'},
+  {id:'ch4',name:'Metan',f:'CH<sub>4</sub>',c:{C:1,H:4},comp:true,hint:'1 kol + 4 väte',
+   atoms:[['H',100,38],['H',100,102],['H',68,70],['H',132,70],['C',100,70]],
+   fact:'Metan är en gas som bland annat bildas i kornas magar. Den kan användas som bränsle, till exempel biogas i bussar.'},
+  {id:'nh3',name:'Ammoniak',f:'NH<sub>3</sub>',c:{N:1,H:3},comp:true,hint:'1 kväve + 3 väte',
+   atoms:[['H',74,84],['H',126,84],['H',100,98],['N',100,64]],
+   fact:'Ammoniak luktar väldigt starkt. Den används för att tillverka gödsel till åkrarna.'},
+  {id:'nacl',name:'Koksalt',f:'NaCl',c:{Na:1,Cl:1},comp:true,crystal:true,hint:'1 natrium + 1 klor',
+   atoms:saltGrid,
+   fact:'Det är saltet du strör på maten. Titta på saltkorn med ett förstoringsglas, så ser du att många är små kuber.'}
+];
+function atomG(el,x,y,r,label){
+  const a=ATOMS[el]; r=r||a.r;
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="${a.c}" stroke="rgba(0,0,0,.22)" stroke-width="1.5"/>
+    <circle cx="${x-r*.35}" cy="${y-r*.38}" r="${r*.3}" fill="#fff" opacity=".38"/>
+    ${label?`<text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="${Math.max(10,r*.8)}" fill="${a.t}">${el}</text>`:''}`;
+}
+function molSVG(rec,label=true){
+  return `<svg viewBox="0 0 200 140" role="img" aria-label="${rec.name}">${rec.atoms.map(a=>atomG(a[0],a[1],a[2],null,label)).join('')}</svg>`;
+}
+function atomIcon(el,size=44){
+  const r=ATOMS[el].r>18?20:15;
+  return `<svg viewBox="0 0 44 44" aria-hidden="true">${atomG(el,22,22,r,true)}</svg>`;
+}
+let bench=[], found=new Set(store.get('molekyllabbet-found')||[]);
+$('#palette').innerHTML=Object.keys(ATOMS).map(k=>`<button class="atombtn" data-atom="${k}">${atomIcon(k)}<span><b>${ATOMS[k].name}</b><small>${k}</small></span></button>`).join('');
+$$('.atombtn').forEach(b=>b.addEventListener('click',()=>{ if(bench.length>=8){ msg('Bordet är fullt. Ta bort några atomer först.'); return; } bench.push(b.dataset.atom); renderBench(); }));
+$('#clear').addEventListener('click',()=>{bench=[];renderBench();});
+function counts(){const c={};bench.forEach(a=>c[a]=(c[a]||0)+1);return c;}
+function same(a,b){const ka=Object.keys(a),kb=Object.keys(b);return ka.length===kb.length&&ka.every(k=>a[k]===b[k]);}
+function within(a,b){return Object.keys(a).every(k=>(b[k]||0)>=a[k]);}
+function renderBench(){
+  const bn=$('#bench');
+  if(!bench.length){ bn.innerHTML='<span class="empty">Bordet är tomt. Välj atomer här ovanför.</span>'; }
+  else bn.innerHTML=bench.map((a,i)=>`<button data-i="${i}" aria-label="Ta bort ${ATOMS[a].name}">${atomIcon(a)}</button>`).join('');
+  bn.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{bench.splice(+b.dataset.i,1);renderBench();}));
+  const c=counts();
+  $('#count').textContent=bench.length? 'På bordet: '+Object.keys(c).map(k=>c[k]+' '+ATOMS[k].name.toLowerCase()).join(', ') : 'Tryck på en atom i bordet för att ta bort den.';
+  check(c);
+}
+function msg(t){ const r=$('#result'); r.classList.remove('win'); r.innerHTML=`<div class="label">Resultat</div><div class="art" style="min-height:180px"><svg viewBox="0 0 200 140" aria-hidden="true"><text x="100" y="80" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="46" font-weight="700" fill="var(--line)">?</text></svg></div><p class="msg">${t}</p>`; }
+function showRecipe(rec,isNew){
+  const r=$('#result');
+  const kind=rec.crystal?'Kristall':'Molekyl';
+  const expl=rec.crystal?'Koksalt är en kemisk förening. Atomerna bildar inga små molekyler. De sitter i ett stort mönster som kallas kristall.'
+    : rec.comp?'Det här är en molekyl och en kemisk förening, eftersom den består av olika sorters atomer.'
+    : 'Det här är en molekyl, men ingen kemisk förening. Alla atomer är av samma sort, så det är ett grundämne.';
+  r.innerHTML=`<div class="label">${isNew?'Ny upptäckt!':'Du har byggt'}</div>
+    <div class="art">${molSVG(rec)}</div>
+    <h3>${rec.name}<span class="formula">${rec.f}</span></h3>
+    <div class="badges"><span class="badge">${kind}</span>${rec.comp?'<span class="badge comp">Kemisk förening</span>':'<span class="badge elem">Grundämne</span>'}</div>
+    <p>${expl}</p><p class="msg">${rec.fact}</p>`;
+  r.classList.remove('win'); void r.offsetWidth; if(isNew) r.classList.add('win');
+}
+function check(c){
+  if(!bench.length){ msg('Lägg atomer på bordet. Prova till exempel två väte och ett syre.'); return; }
+  const rec=RECIPES.find(r=>same(r.c,c));
+  if(rec){ const isNew=!found.has(rec.id); found.add(rec.id); store.set('molekyllabbet-found',[...found]); showRecipe(rec,isNew); renderFound(); return; }
+  if(RECIPES.some(r=>within(c,r.c))) msg('Du är på god väg! Något saknas fortfarande. Titta på ledtrådarna i samlingen.');
+  else msg('Den här kombinationen finns inte i vår samling. Ta bort en atom eller töm bordet och försök igen.');
+}
+function renderFound(){
+  $('#foundcount').textContent=found.size;
+  $('#found').innerHTML=RECIPES.map(r=>found.has(r.id)
+    ? `<button class="fcard" data-r="${r.id}">${molSVG(r,false)}<b>${r.name}</b><small>${r.f}</small></button>`
+    : `<div class="fcard locked"><span class="q">?</span><b>???</b><small>${r.hint}</small></div>`).join('');
+  $$('.fcard[data-r]').forEach(b=>b.addEventListener('click',()=>showRecipe(RECIPES.find(r=>r.id===b.dataset.r),false)));
+}
+const dotRow=(els,y)=>els.map((e,i)=>atomG(e[0],e[1],y,e[2],true)).join('');
+$('#defs').innerHTML=[
+  ['Atom','Den minsta byggstenen. Allt omkring dig är byggt av atomer. Det finns ungefär 100 olika sorter.',
+    `<svg viewBox="0 0 200 56">${atomG('H',60,28,14,true)}${atomG('O',100,28,20,true)}${atomG('C',140,28,19,true)}</svg>`],
+  ['Molekyl','Två eller fler atomer som sitter ihop. Som när du bygger något av legobitar.',
+    `<svg viewBox="0 0 200 56">${atomG('O',84,28,20,true)}${atomG('O',116,28,20,true)}</svg>`],
+  ['Kemisk förening','Ett ämne där olika sorters atomer sitter ihop. Vatten är en kemisk förening av väte och syre.',
+    `<svg viewBox="0 0 200 56">${atomG('H',78,38,13,true)}${atomG('H',122,38,13,true)}${atomG('O',100,24,19,true)}</svg>`]
+].map(d=>`<div class="panel def">${d[2]}<h3>${d[0]}</h3><p>${d[1]}</p></div>`).join('');
+renderBench(); renderFound();
+
+/* =========================================================
+   GLOSSARY
+   ========================================================= */
+function pattern(kind){
+  let pts=[];
+  if(kind==='s'){ for(let r=0;r<3;r++)for(let c=0;c<5;c++) pts.push([12+c*16+(r%2?8:0),44-r*14]); }
+  else if(kind==='l'){ pts=[[10,44],[26,45],[41,43],[57,45],[73,44],[88,44],[18,31],[34,30],[50,33],[66,30],[82,32],[28,18],[60,19]]; }
+  else pts=[[12,10],[48,8],[86,14],[28,30],[70,34],[14,46],[52,48],[92,44]];
+  return `<svg viewBox="0 0 104 56" aria-hidden="true"><rect x="1" y="1" width="102" height="54" rx="8" fill="var(--tank)" stroke="var(--tank-edge)" stroke-width="2"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="var(--o-atom)"/>`).join('')}</svg>`;
+}
+const pc=(a,b,w)=>`<div class="pchange"><span>${a}</span><span style="border:0;background:none;padding:0;color:var(--${w?'hot':'cold'})">→</span><span>${b}</span></div>`;
+const TERMS=[
+  {t:'Atom',g:'b',d:'Den minsta byggstenen i allt omkring oss. Atomer är så små att flera miljoner får plats på rad över ett knappnålshuvud.',ex:'Syre, väte och kol är olika sorters atomer.',vis:`<svg viewBox="0 0 150 56">${atomG('H',30,28,14,true)}${atomG('O',75,28,21,true)}${atomG('C',120,28,20,true)}</svg>`,go:['molekyler','Bygg med atomer']},
+  {t:'Grundämne',g:'b',d:'Ett ämne som bara består av en enda sorts atom.',ex:'Syrgas, guld och järn är grundämnen.',vis:`<svg viewBox="0 0 150 56">${atomG('O',60,28,21,true)}${atomG('O',92,28,21,true)}</svg>`,go:['molekyler','Bygg syrgas']},
+  {t:'Molekyl',g:'b',d:'Två eller fler atomer som sitter ihop.',ex:'En vattenmolekyl är två väteatomer och en syreatom.',vis:`<svg viewBox="0 0 150 56">${atomG('H',50,38,13,true)}${atomG('H',100,38,13,true)}${atomG('O',75,24,20,true)}</svg>`,go:['molekyler','Bygg vatten']},
+  {t:'Kemisk förening',g:'b',d:'Ett ämne där olika sorters atomer har satt sig ihop.',ex:'Vatten (H₂O) och koldioxid (CO₂) är kemiska föreningar.',vis:`<svg viewBox="0 0 150 56">${atomG('O',37,28,20,true)}${atomG('O',113,28,20,true)}${atomG('C',75,28,19,true)}</svg>`,go:['molekyler','Bygg koldioxid']},
+  {t:'Fast form',g:'f',d:'Molekylerna sitter tätt i ordning och vibrerar på sin plats. Ett fast ämne har egen form.',ex:'Is, sten och en penna.',vis:pattern('s'),go:['solid','Visa i labbet']},
+  {t:'Flytande form',g:'f',d:'Molekylerna är nära varandra men kan glida förbi varandra. En vätska rinner och tar formen av kärlet.',ex:'Vatten, mjölk och saft.',vis:pattern('l'),go:['liquid','Visa i labbet']},
+  {t:'Gasform',g:'f',d:'Molekylerna är långt ifrån varandra och flyger åt alla håll. En gas fyller hela rummet den är i.',ex:'Luft och vattenånga.',vis:pattern('g'),go:['gas','Visa i labbet']},
+  {t:'Smältning',g:'c',d:'När ett fast ämne värms upp och blir flytande.',ex:'En glass smälter i solen. Is smälter vid 0 °C.',vis:pc('Fast','Flytande',1),go:['melt','Visa i labbet']},
+  {t:'Stelning',g:'c',d:'När en vätska kyls ned och blir fast. Om det är vatten säger man också att det fryser.',ex:'Vatten i frysen blir till isbitar vid 0 °C.',vis:pc('Flytande','Fast',0),go:['freeze','Visa i labbet']},
+  {t:'Avdunstning',g:'c',d:'När en vätska blir gas. Det sker hela tiden från ytan, även när det inte är så varmt.',ex:'En vattenpöl torkar bort en solig dag. Tvätten torkar på strecket.',vis:pc('Flytande','Gas',1),go:['evap','Visa i labbet']},
+  {t:'Kokning',g:'c',d:'När vätskan är så het att det bildas gasbubblor inne i den. Vatten kokar vid 100 °C.',ex:'Bubblorna i kastrullen när du kokar pasta.',vis:pc('Flytande','Gas',1),go:['boil','Visa i labbet']},
+  {t:'Kondensering',g:'c',d:'När en gas kyls ned och blir flytande igen.',ex:'Spegeln blir immig efter duschen. Daggdroppar på gräset en morgon.',vis:pc('Gas','Flytande',0),go:['cond','Visa i labbet']}
+];
+const GNAME={b:'Byggsten',f:'Form',c:'Förändring'};
+function renderGloss(f){
+  $('#gloss').innerHTML=TERMS.filter(x=>f==='all'||x.g===f).map((x,i)=>`<article class="panel term"><span class="tag ${x.g}">${GNAME[x.g]}</span><div class="vis">${x.vis}</div><h3>${x.t}</h3><p>${x.d}</p><p class="ex"><b>Exempel:</b> ${x.ex}</p><button class="btn go" data-go="${x.go[0]}">${x.go[1]}</button></article>`).join('');
+  $$('#gloss [data-go]').forEach(b=>b.addEventListener('click',()=>{
+    const g=b.dataset.go;
+    if(g==='molekyler'){ showTab('molekyler'); return; }
+    showTab('labb'); requestAnimationFrame(()=>{ resize(); runProc(g); });
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+}
+$$('.filt').forEach(b=>b.addEventListener('click',()=>{ $$('.filt').forEach(x=>x.setAttribute('aria-pressed',x===b)); renderGloss(b.dataset.f); }));
+renderGloss('all');
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+const QS=[
+  {q:'Vad heter det när is blir till vatten?',a:['Smältning','Stelning','Kondensering'],e:'Is som värms upp smälter och blir flytande. Det kallas smältning.'},
+  {q:'Hur sitter molekylerna i något som är i fast form?',a:['Tätt och i ordning, de vibrerar på plats','Långt ifrån varandra','De glider runt och byter plats'],e:'I fast form sitter molekylerna tätt i ett mönster och kan bara vibrera.'},
+  {q:'Spegeln i badrummet blir immig efter duschen. Vad har hänt?',a:['Kondensering','Avdunstning','Smältning'],e:'Vattenångan i luften träffar den kalla spegeln, kyls ned och blir små droppar. Det är kondensering.'},
+  {q:'Vilken form fyller alltid hela rummet den finns i?',a:['Gasform','Flytande form','Fast form'],e:'Gasmolekyler flyger fritt åt alla håll och sprider sig överallt.'},
+  {q:'Vad är H₂O?',a:['En molekyl av väte och syre','En enda atom','Ett grundämne'],e:'H₂O betyder två väteatomer (H) och en syreatom (O). Tillsammans blir de en vattenmolekyl.'},
+  {q:'Vilket av de här är en kemisk förening?',a:['Koldioxid, CO₂','Syrgas, O₂','Vätgas, H₂'],e:'Koldioxid har två sorters atomer, kol och syre. Syrgas och vätgas har bara en sort var.'},
+  {q:'Vad händer med molekylerna när något blir varmare?',a:['De rör sig snabbare','De blir större','De står helt still'],e:'Värme får molekylerna att röra sig mer. Molekylerna själva blir inte större.'},
+  {q:'En vattenpöl på skolgården är borta efter en solig dag. Varför?',a:['Vattnet har avdunstat','Vattnet har stelnat','Vattnet har kondenserat'],e:'Vattnet har blivit vattenånga och försvunnit ut i luften. Det är avdunstning.'},
+  {q:'Vid vilken temperatur fryser vatten till is?',a:['0 °C','50 °C','100 °C'],e:'Vatten fryser, alltså stelnar, vid 0 °C. Vid 100 °C kokar det.'},
+  {q:'Vad kallas det när vatten i frysen blir till isbitar?',a:['Stelning','Kokning','Avdunstning'],e:'När en vätska kyls och blir fast heter det stelning.'}
+];
+let qi=0,score=0,order=[];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function startQuiz(){ qi=0; score=0; order=shuffle(QS).map(q=>({...q,opts:shuffle(q.a)})); renderQ(); }
+function renderQ(){
+  const box=$('#quizbox');
+  if(qi>=order.length){
+    const stars=score>=9?3:score>=6?2:score>=3?1:0;
+    const txt=['Bra försök! Utforska labbet lite till och testa igen.','Bra jobbat! Du kan redan en hel del.','Jättebra! Du kan det här riktigt bra.','Toppen! Du är en riktig kemist!'][stars];
+    box.innerHTML=`<div class="done"><div class="label">Klart!</div><h3>Du fick ${score} av ${order.length} rätt</h3>
+      <div class="stars">${[0,1,2].map(i=>`<span class="${i<stars?'on':''}">★</span>`).join('')}</div><p>${txt}</p>
+      <div class="btnrow" style="justify-content:center;margin-top:16px"><button class="btn primary" id="again" style="flex:0 1 auto">Spela igen</button></div></div>`;
+    $('#again').addEventListener('click',startQuiz); return;
+  }
+  const q=order[qi];
+  box.innerHTML=`<div class="qhead"><div class="progress"><i style="width:${qi/order.length*100}%"></i></div><span class="score">Fråga ${qi+1} av ${order.length} · ${score} rätt</span></div>
+    <h3>${q.q}</h3><div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-o="${i}">${o}</button>`).join('')}</div><div id="fb"></div>`;
+  $$('.opt').forEach(b=>b.addEventListener('click',()=>{
+    const pickd=q.opts[+b.dataset.o], ok=pickd===q.a[0];
+    if(ok) score++;
+    $$('.opt').forEach(x=>{ x.disabled=true; if(q.opts[+x.dataset.o]===q.a[0]) x.classList.add('right'); });
+    if(!ok) b.classList.add('wrong');
+    $('#fb').innerHTML=`<div class="feedback ${ok?'ok':'no'}"><b>${ok?'Rätt!':'Inte riktigt.'}</b><p>${q.e}</p></div>
+      <div class="qnext"><button class="btn primary" id="next">${qi+1<order.length?'Nästa fråga':'Se resultatet'}</button></div>`;
+    $('#next').addEventListener('click',()=>{qi++;renderQ();});
+    $('#next').focus();
+  }));
+}
+startQuiz();
+
+/* ---------- boot ---------- */
+resize(); placeMarks(); forcePhase('l'); updateTemp(); renderState('l');
+const h=(location.hash||'').slice(1);
+if(['labb','molekyler','ordlista','quiz'].includes(h)) showTab(h);
+requestAnimationFrame(tick);
+})();
+</script>
+
+</body>
+</html>
